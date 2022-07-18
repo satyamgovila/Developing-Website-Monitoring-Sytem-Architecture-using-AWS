@@ -10,6 +10,7 @@ Website Monitoring is an all-encompassing term for any activity that involves te
 To create an architecture of real time website monitoring system that will provide functionality to test availability and performance of website by streaming and analysing logs, and trigger Lambda in case of any event or end-to-end testing which will be deployed using AWS services. The system also aims at storing copy of all the error messages in Aurora MySQL for aggregated views in the future.
 
 
+
 ## Real World Business Use Case
 
 1. In some common shopping retail e-commerce website like  Amazon/Flipkart, sales for the product go up remarkably high maybe because of some limited time offer period or if the site is being misued by attackers doing phishing or fraudulent activity with order requests. In such cases, website monitoring system can provide a solution that can identify any such unusual activity in terms of maximum orders(which is set to 15) placed in every 15 seconds using AWS real-time streaming and processing systems. As an additional functionality, the system can be integrated with feature that can check if the orders are authentic and take action like increase the number of backend servers for processing or block the IP address from order placing, etc.
@@ -28,8 +29,20 @@ To create an architecture of real time website monitoring system that will provi
 
 
 
-[explain sys arch later or something ]
+## System Architecture
 
+1. Amazon EC2 acts as website backend generating server logs
+
+2. Kinesis DataStreams reads the server logs in real time and pushes it to Kinesis Data Analytics for doing computation(more than 30 orders/15 sec) and pushes it to DynamoDB via lambda for storing raw website logs
+
+3. We create a second stream in Data Analytics that actually notes such floods for past 1 minute and then send only messages to 2nd Data stream if the trend is noted at least once in last 1 min. This step is purely added to reduce number of notifications received in case of spike.
+
+4. Second data stream is used to receive such alarm records and trigger lambda
+
+5. Lambda triggers SNS notification which in turn delivers a SMS message. It saves the copy of all the error messages in Aurora MySQL for aggregated view in future
+
+
+<img width="1007" alt="Screenshot 2022-07-19 at 4 35 01 AM" src="https://user-images.githubusercontent.com/25201417/179631516-892ca4c9-cf63-47a4-9187-48cf12cfe364.png">
 
 
 ## Amazon Kinesis 
@@ -39,9 +52,9 @@ Amazon Kinesis is an fully-managed data analytic AWS service that enables us to 
 It includes pre-built SQL functions for several advanced analytics including one for anomaly detection where we ccan simply make a call to this function from  SQL code for detecting anomalies in real-time.
 This service is heavily used in end-to-end stream processing applications for log analytics, clickstream analytics, Internet of Things (IoT), ad tech, gaming, e-commerce platform, etc.
 
+![kinesis-app](https://user-images.githubusercontent.com/25201417/179629557-be45155f-e30d-4b47-ae60-96ad56b5ef87.png)
 
-<make your own custom diagram>
-<img width="798" alt="Screenshot 2022-07-15 at 9 14 25 AM" src="https://user-images.githubusercontent.com/25201417/179146007-8dba4247-b738-4b60-aac5-593fca6ae1d6.png">
+Image Source :- https://docs.aws.amazon.com/kinesisanalytics/latest/dev/how-it-works.html
 
 AWS Kinesis works on first configuring  and collecting data ftrom various input data streams such as input devices, or Amazon Kinesis data stream or Amazon Kinesis Data Firehouse, and these streams can be queried using built-in integration for SQL analytics  and finally stored as output in Amazon s3 or Redshift, etc.
 
