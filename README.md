@@ -28,7 +28,7 @@ To create an architecture of real time website monitoring system that will provi
 
 
 
-<explain sys arch later or something >
+[explain sys arch later or something ]
 
 
 
@@ -52,19 +52,54 @@ This works on first connecting external data source to KDS by Kinesis Agent or w
 
 
 
-### Connect EC2 Instance and install Kinesis agent
+### Connect EC2 Instance , install Kinesis agent and run script on it
 
-< pdf SSH into EC2 instance and install Kinesis agent >
+* ssh into EC2 instance
+* sudo yum install -y aws-kinesis-agent
+* Replace the agent.json with following contents.
 
-<Dataset online retail csv>
 
-<LogGenerator.py>
+```
+sudo vi /etc/aws-kinesis/agent.json file
 
-<11 th video>
 
-copy data , py, to EC2 instance
+{
+    "cloudwatch.emitMetrics":true,
+    "kinesis.endpoint":"kinesis.ap-south-1.amazonaws.com",
+    "firehose.endpoint":"",
+    "flows":[
+        {
+            "filePattern":"/var/log/website/*.log",
+            "kinesisStream":"mywebsiteorder",
+            "partitionKeyOption":"RANDOM",
+            "dataProcessingOptions":[
+                {
+                    "optionName":"CSVTOJSON",
+                    "customFieldNames":[
+                        "InvoiceNo",
+                        "StockCode",
+                        "Description",
+                        "Quantity",
+                        "InvoiceDate",
+                        "UnitPrice",
+                        "Customer",
+                        "Country"
+                    ]
+                }
+            ]
+        }
+    ]
+}
 
-attach terminal ss
+sudo mkdir -p /var/log/website
+sudo service aws-kinesis-agent restart
+```
+* Run LogGenerator.py file to generate the logs
+
+
+<img width="1567" alt="Screenshot 2022-07-19 at 4 01 47 AM" src="https://user-images.githubusercontent.com/25201417/179628315-6ba85fa2-05d6-4935-8753-ae5197be7de4.png">
+
+
 
 ## Running and Processing Kinesis Analytics
 
@@ -152,20 +187,4 @@ def lambda_handler(event, context):
         for item in deserialized_data:
            ...
 ```
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
 
