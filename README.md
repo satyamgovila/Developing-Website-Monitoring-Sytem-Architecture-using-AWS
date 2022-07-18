@@ -28,9 +28,6 @@ To create an architecture of real time website monitoring system that will provi
 
 
 
-
-## System Architecture (draw own diagram Lucid or something)
-
 <explain sys arch later or something >
 
 
