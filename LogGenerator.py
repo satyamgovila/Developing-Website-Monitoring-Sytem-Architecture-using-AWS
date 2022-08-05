@@ -1,10 +1,4 @@
-#!/usr/bin/python3
 
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  12  2021
-
-"""
 
 import csv
 import time
